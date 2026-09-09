@@ -33,7 +33,7 @@ alignment = 1
 [node name="Title" type="Label" parent="Center"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 40
-text = "Anarchy Pong"
+text = "Chaos Pong"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="Center"]
