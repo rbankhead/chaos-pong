@@ -18,7 +18,7 @@ func _ready() -> void:
 	_update_score_labels()
 
 
-func _physics_process(_delta: float) -> void:
+func _process(_delta: float) -> void:
 	if ball.velocity.x < 0.0 and ball.get_rect().intersects(left_paddle.get_rect()):
 		ball.bounce_off_paddle(left_paddle.get_rect(), true)
 	elif ball.velocity.x > 0.0 and ball.get_rect().intersects(right_paddle.get_rect()):

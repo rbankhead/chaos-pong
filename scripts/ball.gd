@@ -1,9 +1,9 @@
 extends Node2D
 class_name Ball
 
-const RADIUS := 8.0
-const START_SPEED := 300.0
-const SPEED_INCREMENT := 20.0
+const RADIUS := 16.0
+const START_SPEED := 600.0
+const SPEED_INCREMENT := 40.0
 
 signal scored(scorer: int) # 1 = left paddle scores, 2 = right paddle scores
 
@@ -17,7 +17,7 @@ func _ready() -> void:
 
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, RADIUS, Color.WHITE)
+	draw_circle(Vector2.ZERO, RADIUS, Color(0.82, 0.82, 0.84, 1.0))
 
 
 func reset(direction: int) -> void:
@@ -26,7 +26,7 @@ func reset(direction: int) -> void:
 	velocity = Vector2(direction, 0.0).rotated(angle) * START_SPEED
 
 
-func _physics_process(delta: float) -> void:
+func _process(delta: float) -> void:
 	position += velocity * delta
 
 	if position.y - RADIUS <= 0.0 or position.y + RADIUS >= screen_size.y:

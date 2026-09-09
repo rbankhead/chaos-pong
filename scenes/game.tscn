@@ -7,12 +7,17 @@
 [node name="Game" type="Node2D"]
 script = ExtResource("1")
 
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 2080.0
+offset_bottom = 1200.0
+color = Color(0.28, 0.28, 0.3, 1)
+
 [node name="LeftPaddle" parent="." instance=ExtResource("2")]
-position = Vector2(40, 300)
+position = Vector2(80, 600)
 player = 1
 
 [node name="RightPaddle" parent="." instance=ExtResource("2")]
-position = Vector2(760, 300)
+position = Vector2(2000, 600)
 player = 2
 
 [node name="Ball" parent="." instance=ExtResource("3")]
@@ -20,19 +25,19 @@ player = 2
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="LeftScore" type="Label" parent="UI"]
-offset_left = 300.0
-offset_top = 20.0
-offset_right = 380.0
-offset_bottom = 60.0
-theme_override_font_sizes/font_size = 32
+offset_left = 840.0
+offset_top = 40.0
+offset_right = 1000.0
+offset_bottom = 120.0
+theme_override_font_sizes/font_size = 64
 text = "0"
 horizontal_alignment = 1
 
 [node name="RightScore" type="Label" parent="UI"]
-offset_left = 420.0
-offset_top = 20.0
-offset_right = 500.0
-offset_bottom = 60.0
-theme_override_font_sizes/font_size = 32
+offset_left = 1080.0
+offset_top = 40.0
+offset_right = 1240.0
+offset_bottom = 120.0
+theme_override_font_sizes/font_size = 64
 text = "0"
 horizontal_alignment = 1
