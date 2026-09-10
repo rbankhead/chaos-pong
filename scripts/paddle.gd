@@ -7,16 +7,22 @@ const SPEED := 800.0
 
 const AI_REACTION_INTERVAL := 0.2 # seconds between AI "looks" at the ball
 const AI_AIM_ERROR := 40.0 # pixels of aim noise applied each time it looks
+const SHOOT_COOLDOWN_TIME := 1.0 # max one shot per second
+
+signal shoot_requested(paddle: Paddle, direction: float)
 
 @export var player := 1 # 1 = W/S, 2 = Up/Down. Ignored when is_ai is true.
 @export var is_ai := false
 
+var can_shoot := false
 var ai_target: Ball = null
 var screen_height := 600.0
 var screen_width := 800.0
 var is_left_side := true
 var ai_timer := 0.0
 var ai_known_target_y := 0.0
+var ai_ball_incoming := false
+var shoot_cooldown := 0.0
 var body_style := StyleBoxFlat.new()
 
 
@@ -49,8 +55,8 @@ func _process(delta: float) -> void:
 			ai_timer += delta
 			if ai_timer >= AI_REACTION_INTERVAL:
 				ai_timer = 0.0
-				var ball_incoming: bool = (is_left_side and ai_target.velocity.x < 0.0) or (not is_left_side and ai_target.velocity.x > 0.0)
-				if ball_incoming:
+				ai_ball_incoming = (is_left_side and ai_target.velocity.x < 0.0) or (not is_left_side and ai_target.velocity.x > 0.0)
+				if ai_ball_incoming:
 					ai_known_target_y = ai_target.position.y + randf_range(-AI_AIM_ERROR, AI_AIM_ERROR)
 				else:
 					ai_known_target_y = screen_height / 2.0
@@ -70,6 +76,23 @@ func _process(delta: float) -> void:
 
 	position.y += dir * speed * delta
 	position.y = clamp(position.y, HEIGHT / 2.0, screen_height - HEIGHT / 2.0)
+
+	if can_shoot:
+		var wants_to_shoot := false
+		if is_ai:
+			wants_to_shoot = ai_ball_incoming
+		elif player == 1:
+			wants_to_shoot = Input.is_key_pressed(KEY_SPACE)
+		else:
+			wants_to_shoot = Input.is_key_pressed(KEY_ENTER)
+		_try_shoot(wants_to_shoot, delta)
+
+
+func _try_shoot(wants_to_shoot: bool, delta: float) -> void:
+	shoot_cooldown = max(shoot_cooldown - delta, 0.0)
+	if wants_to_shoot and shoot_cooldown <= 0.0:
+		shoot_cooldown = SHOOT_COOLDOWN_TIME
+		shoot_requested.emit(self, 1.0 if is_left_side else -1.0)
 
 
 func get_rect() -> Rect2:

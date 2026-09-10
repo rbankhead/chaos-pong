@@ -10,11 +10,12 @@ const CHAOS_INTERVAL := 30.0
 
 var balls: Array[Ball] = []
 var edge_paddles: Array[EdgePaddle] = []
+var projectiles: Array[Projectile] = []
 var third_fourth_active := false
 
 var scores := {1: 0, 2: 0}
 
-var chaos_pool := ["double_speed", "split", "swap", "third_fourth"]
+var chaos_pool := ["double_speed", "split", "swap", "third_fourth", "projectiles"]
 var chaos_timer := 0.0
 var next_chaos_time := CHAOS_FIRST_DELAY
 
@@ -45,6 +46,15 @@ func _process(delta: float) -> void:
 					ball.bounce_off_horizontal_paddle(edge.get_rect(), true)
 				elif not edge.is_top and ball.velocity.y > 0.0 and ball.get_rect().intersects(edge.get_rect()):
 					ball.bounce_off_horizontal_paddle(edge.get_rect(), false)
+
+	projectiles = projectiles.filter(func(p): return is_instance_valid(p))
+	for projectile in projectiles.duplicate():
+		for ball in balls:
+			if projectile.get_rect().intersects(ball.get_rect()):
+				ball.velocity += projectile.velocity.normalized() * Projectile.IMPULSE_STRENGTH
+				projectiles.erase(projectile)
+				projectile.queue_free()
+				break
 
 
 func _register_ball(ball: Ball) -> void:
@@ -84,6 +94,8 @@ func _trigger_random_chaos() -> void:
 			_apply_swap()
 		"third_fourth":
 			_apply_third_fourth()
+		"projectiles":
+			_apply_projectiles()
 
 
 func _apply_double_speed() -> void:
@@ -134,6 +146,21 @@ func _apply_third_fourth() -> void:
 	add_child(bottom)
 	bottom.ai_target = balls[0]
 	edge_paddles.append(bottom)
+
+
+func _apply_projectiles() -> void:
+	left_paddle.can_shoot = true
+	right_paddle.can_shoot = true
+	left_paddle.shoot_requested.connect(_on_shoot_requested)
+	right_paddle.shoot_requested.connect(_on_shoot_requested)
+
+
+func _on_shoot_requested(paddle: Paddle, direction: float) -> void:
+	var projectile: Projectile = preload("res://scenes/projectile.tscn").instantiate()
+	add_child(projectile)
+	projectile.position = paddle.position
+	projectile.velocity = Vector2(direction, 0.0) * Projectile.SPEED
+	projectiles.append(projectile)
 
 
 func _unhandled_input(event: InputEvent) -> void:

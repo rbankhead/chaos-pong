@@ -70,12 +70,54 @@ func test_apply_third_fourth_spawns_two_edge_paddles() -> void:
 	assert_true(game.third_fourth_active)
 
 
-func test_all_four_chaos_effects_trigger_exactly_once() -> void:
+func test_all_five_chaos_effects_trigger_exactly_once() -> void:
 	var game = GameScene.instantiate()
 	add_child_autofree(game)
-	for i in range(4):
+	for i in range(5):
 		game._trigger_random_chaos()
 	assert_eq(game.chaos_pool.size(), 0)
 	assert_true(game.third_fourth_active)
 	assert_eq(game.edge_paddles.size(), 2)
 	assert_eq(game.balls.size(), 4)
+	assert_true(game.left_paddle.can_shoot)
+	assert_true(game.right_paddle.can_shoot)
+
+
+func test_apply_projectiles_enables_shooting_on_both_paddles() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._apply_projectiles()
+	assert_true(game.left_paddle.can_shoot)
+	assert_true(game.right_paddle.can_shoot)
+
+
+func test_shoot_requested_spawns_a_projectile() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._apply_projectiles()
+	game._on_shoot_requested(game.left_paddle, 1.0)
+	assert_eq(game.projectiles.size(), 1)
+	assert_eq(game.projectiles[0].velocity, Vector2(Projectile.SPEED, 0.0))
+
+
+func test_projectile_redirects_ball_and_is_consumed_on_hit() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	var ball = game.balls[0]
+	ball.velocity = Vector2(100.0, 0.0)
+	game._apply_projectiles()
+	game._on_shoot_requested(game.left_paddle, 1.0)
+	game.projectiles[0].position = ball.position # force an overlap
+	game._process(0.0)
+	assert_eq(game.projectiles.size(), 0)
+	assert_ne(ball.velocity, Vector2(100.0, 0.0))
+
+
+func test_projectile_does_not_collide_with_paddles() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._apply_projectiles()
+	game._on_shoot_requested(game.left_paddle, 1.0)
+	game.projectiles[0].position = game.right_paddle.position # force an overlap with a paddle
+	game._process(0.0)
+	assert_eq(game.projectiles.size(), 1) # still alive - projectiles only collide with balls
