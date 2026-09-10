@@ -1,7 +1,5 @@
 extends Node2D
 
-const CHAOS_FIRST_DELAY := 30.0
-const CHAOS_INTERVAL := 30.0
 const OBSTACLE_SPAWN_INTERVAL := 3.0
 
 @onready var left_paddle: Paddle = $LeftPaddle
@@ -21,9 +19,10 @@ var obstacle_spawn_timer := 0.0
 
 var scores := {1: 0, 2: 0}
 
-var chaos_pool := ["double_speed", "split", "swap", "third_fourth", "projectiles", "double_points", "shrink_paddles", "obstructions"]
+var chaos_pool := []
 var chaos_timer := 0.0
-var next_chaos_time := CHAOS_FIRST_DELAY
+var chaos_interval := 30.0
+var next_chaos_time := 30.0
 
 
 func _ready() -> void:
@@ -34,11 +33,15 @@ func _ready() -> void:
 	_update_score_labels()
 	debug_timer_label.visible = OS.is_debug_build()
 
+	chaos_interval = GameState.chaos_interval
+	next_chaos_time = chaos_interval
+	chaos_pool = GameState.CHAOS_EFFECT_KEYS.filter(func(key): return GameState.enabled_chaos_effects.get(key, true))
+
 
 func _process(delta: float) -> void:
 	chaos_timer += delta
 	if chaos_timer >= next_chaos_time and not chaos_pool.is_empty():
-		next_chaos_time += CHAOS_INTERVAL
+		next_chaos_time += chaos_interval
 		_trigger_random_chaos()
 
 	if OS.is_debug_build():

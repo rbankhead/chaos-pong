@@ -3,6 +3,28 @@ extends GutTest
 var GameScene := preload("res://scenes/game.tscn")
 
 
+func before_each() -> void:
+	GameState.chaos_interval = GameState.DEFAULT_CHAOS_INTERVAL
+	for key in GameState.CHAOS_EFFECT_KEYS:
+		GameState.enabled_chaos_effects[key] = true
+
+
+func test_uses_chaos_interval_from_game_state() -> void:
+	GameState.chaos_interval = 15.0
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	assert_eq(game.chaos_interval, 15.0)
+	assert_eq(game.next_chaos_time, 15.0)
+
+
+func test_disabled_effect_is_excluded_from_chaos_pool() -> void:
+	GameState.enabled_chaos_effects["split"] = false
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	assert_eq(game.chaos_pool.size(), 7)
+	assert_false(game.chaos_pool.has("split"))
+
+
 func test_apply_double_speed_scales_all_balls() -> void:
 	var game = GameScene.instantiate()
 	add_child_autofree(game)

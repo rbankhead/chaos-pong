@@ -23,9 +23,26 @@ test/unit/            GUT tests, one file per script under test.
 Scene flow
 ----------
 menu.tscn (main scene)
-  -> Single Player / Two Player: sets GameState.two_player (the only
-     autoload holding cross-scene state), loads game.tscn
-  -> Options: stub scene, not wired to anything yet
+  -> Single Player / Two Player: sets GameState.two_player, loads game.tscn
+  -> Options: builds one row per setting at runtime (options.gd), reading
+     from and writing straight to GameState - a chaos-timer SpinBox and
+     a CheckButton per chaos effect (on by default). See GameState below.
+
+GameState (scripts/game_state.gd) - the only autoload holding settings
+------------------------------------------------------------------------
+Cross-scene state, read by Game at _ready() and written directly by
+Options as the player changes each control (no separate "apply" step -
+changes take effect next time a game.tscn is loaded).
+
+  two_player               - set by Menu, read by Game
+  chaos_interval            - default 30s, player-adjustable 10-60s via
+                               the Options SpinBox; governs both the
+                               first trigger delay and the repeat gap
+  enabled_chaos_effects     - {effect_key: bool}, all true by default;
+                               a CheckButton per key in Options
+  CHAOS_EFFECT_KEYS          - the canonical ordered list of effect keys,
+                               shared by Game (builds chaos_pool from it)
+                               and Options (builds one row per key from it)
 
 Core entities
 -------------
@@ -80,7 +97,11 @@ design; rules connecting entities live here, not on the entities.
     scores: {1: int, 2: int}            - keyed by PLAYER, not side,
                                            so a paddle swap doesn't
                                            transfer scoring credit
-    chaos_pool: Array[String]           - remaining un-fired effects
+    chaos_pool: Array[String]           - remaining un-fired effects,
+                                           built at _ready() from
+                                           GameState.enabled_chaos_effects
+                                           (disabled effects are simply
+                                           never added to the pool)
 
   Collision handling (_process, every frame):
     All manual Rect2.intersects() checks - no Godot physics engine
@@ -92,8 +113,9 @@ design; rules connecting entities live here, not on the entities.
         re-triggering every frame while overlapping; not consumed)
 
   Chaos scheduler:
-    First trigger at CHAOS_FIRST_DELAY (30s), then every CHAOS_INTERVAL
-    (30s). Each tick picks a random effect from chaos_pool and removes
+    First trigger at chaos_interval (from GameState, default 30s,
+    player-adjustable 10-60s in Options), then every chaos_interval
+    again. Each tick picks a random effect from chaos_pool and removes
     it - every effect fires exactly once, ever, and stays permanent
     once applied (no reverting, no repeats, no compounding). Once the
     pool is empty, nothing further happens for the rest of the match.
@@ -140,6 +162,10 @@ Known gaps (deliberate, not oversights - revisit if they start to bite)
     split has already happened.
   - No on-screen announcement when a chaos effect fires (only the
     debug countdown shows anything).
-  - Long games plateau: once all 8 effects have fired (by t=240s, 4min
-    in), nothing further escalates for the rest of the match - except
-    obstructions, which keeps spawning obstacles indefinitely.
+  - Long games plateau: once every enabled effect has fired (by
+    t = chaos_interval * count of enabled effects), nothing further
+    escalates for the rest of the match - except obstructions, which
+    keeps spawning obstacles indefinitely.
+  - Options changes apply on next game.tscn load, not live mid-match -
+    there's no "apply" confirmation step, GameState is just written
+    to directly as each control changes.
