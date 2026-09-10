@@ -1,6 +1,6 @@
 extends Node2D
 
-const OBSTACLE_SPAWN_INTERVAL := 3.0
+const OBSTACLE_SPAWN_INTERVAL := 1.2
 const SPIN_AMOUNT := 1.2 # radians/sec of curve applied to the ball
 
 @onready var left_paddle: Paddle = $LeftPaddle
@@ -69,7 +69,7 @@ func _process(delta: float) -> void:
 	for projectile in projectiles.duplicate():
 		for ball in balls:
 			if projectile.get_rect().intersects(ball.get_rect()):
-				ball.velocity += projectile.velocity.normalized() * Projectile.IMPULSE_STRENGTH
+				ball.hit_by_projectile(projectile.velocity)
 				projectiles.erase(projectile)
 				projectile.queue_free()
 				break
@@ -213,6 +213,7 @@ func _on_shoot_requested(paddle: Paddle, direction: float) -> void:
 	add_child(projectile)
 	projectile.position = paddle.position
 	projectile.velocity = Vector2(direction, 0.0) * Projectile.SPEED
+	projectile.color = Color("#4d9fff") if paddle.player == 1 else Color("#ff6b5e")
 	projectiles.append(projectile)
 
 

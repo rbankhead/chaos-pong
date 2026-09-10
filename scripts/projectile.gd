@@ -3,10 +3,10 @@ class_name Projectile
 
 const RADIUS := 6.0
 const SPEED := 900.0
-const IMPULSE_STRENGTH := 300.0
 
 var velocity := Vector2.ZERO
 var screen_size := Vector2(800, 600)
+var color := Color("#4d9fff")
 
 
 func _ready() -> void:
@@ -14,7 +14,7 @@ func _ready() -> void:
 
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, RADIUS, Color("#4d9fff"))
+	draw_circle(Vector2.ZERO, RADIUS, color)
 
 
 func _process(delta: float) -> void:

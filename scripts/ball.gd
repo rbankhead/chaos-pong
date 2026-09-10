@@ -88,5 +88,11 @@ func bounce_off_horizontal_paddle(paddle_rect: Rect2, from_top: bool) -> void:
 	decay_spin()
 
 
+func hit_by_projectile(projectile_direction: Vector2) -> void:
+	var speed := velocity.length() + SPEED_INCREMENT
+	velocity = projectile_direction.normalized() * speed
+	decay_spin()
+
+
 func get_rect() -> Rect2:
 	return Rect2(position - Vector2.ONE * RADIUS, Vector2.ONE * RADIUS * 2.0)

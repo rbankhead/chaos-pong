@@ -274,6 +274,17 @@ func test_shoot_requested_spawns_a_projectile() -> void:
 	assert_eq(game.projectiles[0].velocity, Vector2(Projectile.SPEED, 0.0))
 
 
+func test_projectile_color_differs_per_player() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._apply_projectiles()
+	game._on_shoot_requested(game.left_paddle, 1.0) # player 1
+	game._on_shoot_requested(game.right_paddle, -1.0) # player 2
+	assert_eq(game.projectiles[0].color, Color("#4d9fff"))
+	assert_eq(game.projectiles[1].color, Color("#ff6b5e"))
+	assert_ne(game.projectiles[0].color, game.projectiles[1].color)
+
+
 func test_projectile_redirects_ball_and_is_consumed_on_hit() -> void:
 	var game = GameScene.instantiate()
 	add_child_autofree(game)

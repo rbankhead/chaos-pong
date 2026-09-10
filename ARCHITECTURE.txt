@@ -88,7 +88,14 @@ them.
 
   Projectile (scripts/projectile.gd)
     Straight-line movement, self-destructs off-screen. Only ever
-    collides with a Ball (checked in Game, not here).
+    collides with a Ball (checked in Game, not here). `color` is set
+    by Game per the firing Paddle's `player` (blue for player 1,
+    coral for player 2, following identity through a swap like the
+    O/X markers and scores do). On hit, Game calls
+    `Ball.hit_by_projectile(projectile.velocity)`, which redirects the
+    ball toward the projectile's travel direction and speeds it up by
+    SPEED_INCREMENT - the same shape of change as a paddle bounce,
+    including decaying spin, not just an added impulse.
 
   Obstacle (scripts/obstacle.gd)
     Falls straight down at a constant speed, self-destructs once past
@@ -151,7 +158,7 @@ design; rules connecting entities live here, not on the entities.
     projectiles    - sets can_shoot on both Paddles; connects their
                      shoot_requested signal to Game, which spawns a
                      Projectile per shot (paddle-side cooldown caps
-                     this at 1/sec)
+                     this at 1/sec), colored by the shooter's player
     double_points  - turns every current ball gold (Ball.is_accent,
                      inherited by split clones) and doubles the value
                      of the NEXT score only - that score consumes the
@@ -164,7 +171,7 @@ design; rules connecting entities live here, not on the entities.
                      const, not a change to the const itself)
     obstructions   - sets obstructions_active; Game then spawns an
                      Obstacle from a random x at the top every
-                     OBSTACLE_SPAWN_INTERVAL (3s) for the rest of the
+                     OBSTACLE_SPAWN_INTERVAL (1.2s) for the rest of the
                      match - the only chaos effect that keeps doing
                      something after it fires, rather than being a
                      single permanent state change

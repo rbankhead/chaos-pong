@@ -33,6 +33,24 @@ func test_bounce_off_paddle_edge_hit_deflects() -> void:
 	assert_lt(ball.velocity.y, 0.0)
 
 
+func test_hit_by_projectile_redirects_toward_projectile_direction() -> void:
+	var ball = BallScene.instantiate()
+	add_child_autofree(ball)
+	ball.velocity = Vector2(500.0, 0.0)
+	ball.hit_by_projectile(Vector2(0.0, 1.0))
+	assert_almost_eq(ball.velocity.angle(), Vector2(0.0, 1.0).angle(), 0.01)
+	assert_almost_eq(ball.velocity.length(), 540.0, 1.0) # speed + SPEED_INCREMENT, like a paddle bounce
+
+
+func test_hit_by_projectile_decays_spin() -> void:
+	var ball = BallScene.instantiate()
+	add_child_autofree(ball)
+	ball.velocity = Vector2(500.0, 0.0)
+	ball.spin = 1.0
+	ball.hit_by_projectile(Vector2(0.0, 1.0))
+	assert_almost_eq(ball.spin, 0.7, 0.001)
+
+
 func test_bounce_off_horizontal_paddle_mirrors_vertical_bounce() -> void:
 	var ball = BallScene.instantiate()
 	add_child_autofree(ball)
