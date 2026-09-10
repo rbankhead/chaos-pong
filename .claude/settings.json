@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd=$(cat | jq -r '.tool_input.command // empty'); case \"$cmd\" in *\"git commit\"*) if [ \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"/Users/richardbankhead/chaos-pong\" ]; then if /Applications/Godot.app/Contents/MacOS/Godot --headless -s addons/gut/gut_cmdln.gd -d --path /Users/richardbankhead/chaos-pong -gdir=res://test/unit -gexit >/tmp/gut-hook-output.txt 2>&1; then exit 0; else echo \"{\\\"hookSpecificOutput\\\":{\\\"hookEventName\\\":\\\"PreToolUse\\\",\\\"permissionDecision\\\":\\\"deny\\\",\\\"permissionDecisionReason\\\":\\\"GUT test suite failed - commit blocked until tests pass. See /tmp/gut-hook-output.txt for details.\\\"}}\"; exit 0; fi; fi ;; esac; exit 0",
+            "timeout": 60,
+            "statusMessage": "Running GUT tests before commit..."
+          }
+        ]
+      }
+    ]
+  }
+}
