@@ -9,6 +9,7 @@ signal scored(scorer: int) # 1 = left paddle scores, 2 = right paddle scores
 
 var velocity := Vector2.ZERO
 var screen_size := Vector2(800, 600)
+var speed_scale := 1.0
 
 
 func _ready() -> void:
@@ -23,7 +24,7 @@ func _draw() -> void:
 func reset(direction: int) -> void:
 	position = screen_size / 2.0
 	var angle := randf_range(-0.3, 0.3)
-	velocity = Vector2(direction, 0.0).rotated(angle) * START_SPEED
+	velocity = Vector2(direction, 0.0).rotated(angle) * START_SPEED * speed_scale
 
 
 func _process(delta: float) -> void:
@@ -46,6 +47,15 @@ func bounce_off_paddle(paddle_rect: Rect2, from_left: bool) -> void:
 	var speed := velocity.length() + SPEED_INCREMENT
 	var dir := 1.0 if from_left else -1.0
 	velocity = Vector2(dir, offset).normalized() * speed
+
+
+func bounce_off_horizontal_paddle(paddle_rect: Rect2, from_top: bool) -> void:
+	var paddle_center_x := paddle_rect.position.x + paddle_rect.size.x / 2.0
+	var offset := (position.x - paddle_center_x) / (paddle_rect.size.x / 2.0)
+	offset = clamp(offset, -1.0, 1.0)
+	var speed := velocity.length() + SPEED_INCREMENT
+	var dir := 1.0 if from_top else -1.0
+	velocity = Vector2(offset, dir).normalized() * speed
 
 
 func get_rect() -> Rect2:
