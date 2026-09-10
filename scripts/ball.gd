@@ -4,6 +4,8 @@ class_name Ball
 const RADIUS := 16.0
 const START_SPEED := 600.0
 const SPEED_INCREMENT := 40.0
+const SPIN_DECAY := 0.7 # spin multiplier applied on every bounce
+const SPIN_STOP_THRESHOLD := 0.05 # below this, spin snaps to exactly 0
 
 signal scored(scorer: int) # 1 = left paddle scores, 2 = right paddle scores
 
@@ -36,6 +38,12 @@ func _draw() -> void:
 		draw_line(-bar_dir, bar_dir, Color("#1a1c22"), 3.0)
 
 
+func decay_spin() -> void:
+	spin *= SPIN_DECAY
+	if abs(spin) < SPIN_STOP_THRESHOLD:
+		spin = 0.0
+
+
 func reset(direction: int) -> void:
 	position = screen_size / 2.0
 	var angle := randf_range(-0.3, 0.3)
@@ -52,6 +60,7 @@ func _process(delta: float) -> void:
 	if position.y - RADIUS <= 0.0 or position.y + RADIUS >= screen_size.y:
 		velocity.y = -velocity.y
 		position.y = clamp(position.y, RADIUS, screen_size.y - RADIUS)
+		decay_spin()
 
 	if position.x < -RADIUS:
 		scored.emit(2)
@@ -66,6 +75,7 @@ func bounce_off_paddle(paddle_rect: Rect2, from_left: bool) -> void:
 	var speed := velocity.length() + SPEED_INCREMENT
 	var dir := 1.0 if from_left else -1.0
 	velocity = Vector2(dir, offset).normalized() * speed
+	decay_spin()
 
 
 func bounce_off_horizontal_paddle(paddle_rect: Rect2, from_top: bool) -> void:
@@ -75,6 +85,7 @@ func bounce_off_horizontal_paddle(paddle_rect: Rect2, from_top: bool) -> void:
 	var speed := velocity.length() + SPEED_INCREMENT
 	var dir := 1.0 if from_top else -1.0
 	velocity = Vector2(offset, dir).normalized() * speed
+	decay_spin()
 
 
 func get_rect() -> Rect2:

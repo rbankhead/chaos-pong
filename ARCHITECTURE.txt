@@ -72,6 +72,11 @@ them.
     a rotating indicator bar drawn across the ball whenever spin != 0
     (queue_redraw() called every frame while spinning, unlike the
     one-shot redraws the other flags use). Also inherited by clones.
+    `decay_spin()` multiplies spin by SPIN_DECAY (0.7) and snaps it to
+    exactly 0 below SPIN_STOP_THRESHOLD; called on every bounce off a
+    paddle, wall, or Obstacle (not on a Projectile hit, which is an
+    added force rather than a surface reflection) - spin winds down
+    over a rally instead of curving at a constant rate until scored.
 
   HorizontalPaddle (scripts/horizontal_paddle.gd)
     The chaos-only top/bottom paddles. Same shape of AI logic as

@@ -26,6 +26,7 @@ func bounce_ball(ball: Ball) -> void:
 	if normal == Vector2.ZERO:
 		normal = Vector2.UP
 	ball.velocity = ball.velocity.bounce(normal)
+	ball.decay_spin()
 
 
 func get_rect() -> Rect2:

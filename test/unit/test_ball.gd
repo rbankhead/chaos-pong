@@ -94,3 +94,51 @@ func test_zero_spin_does_not_alter_velocity_direction() -> void:
 	ball.spin = 0.0
 	ball._process(0.5)
 	assert_almost_eq(ball.velocity.angle(), 0.0, 0.001)
+
+
+func test_decay_spin_multiplies_by_decay_factor() -> void:
+	var ball = BallScene.instantiate()
+	add_child_autofree(ball)
+	ball.spin = 1.0
+	ball.decay_spin()
+	assert_almost_eq(ball.spin, 0.7, 0.001)
+
+
+func test_decay_spin_snaps_to_zero_below_threshold() -> void:
+	var ball = BallScene.instantiate()
+	add_child_autofree(ball)
+	ball.spin = 0.06
+	ball.decay_spin() # 0.06 * 0.7 = 0.042, below the 0.05 threshold
+	assert_eq(ball.spin, 0.0)
+
+
+func test_bounce_off_paddle_decays_spin() -> void:
+	var ball = BallScene.instantiate()
+	add_child_autofree(ball)
+	ball.velocity = Vector2(-500.0, 0.0)
+	ball.spin = 1.0
+	var paddle_rect := Rect2(0.0, 0.0, 32.0, 200.0)
+	ball.position = Vector2(0.0, 100.0)
+	ball.bounce_off_paddle(paddle_rect, true)
+	assert_almost_eq(ball.spin, 0.7, 0.001)
+
+
+func test_bounce_off_horizontal_paddle_decays_spin() -> void:
+	var ball = BallScene.instantiate()
+	add_child_autofree(ball)
+	ball.velocity = Vector2(0.0, -500.0)
+	ball.spin = 1.0
+	var paddle_rect := Rect2(0.0, 0.0, 200.0, 32.0)
+	ball.position = Vector2(100.0, 0.0)
+	ball.bounce_off_horizontal_paddle(paddle_rect, true)
+	assert_almost_eq(ball.spin, 0.7, 0.001)
+
+
+func test_wall_bounce_decays_spin() -> void:
+	var ball = BallScene.instantiate()
+	add_child_autofree(ball)
+	ball.spin = 1.0
+	ball.velocity = Vector2(100.0, -50.0)
+	ball.position = Vector2(500.0, ball.RADIUS) # sitting right at the top wall
+	ball._process(0.0)
+	assert_almost_eq(ball.spin, 0.7, 0.001)
