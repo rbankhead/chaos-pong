@@ -11,6 +11,7 @@ const EFFECT_LABELS := {
 	"double_points": "Double Points",
 	"shrink_paddles": "Shrink Paddles",
 	"obstructions": "Falling Obstructions",
+	"spin": "Ball Spin",
 }
 
 @onready var settings_list: VBoxContainer = $Center/SettingsList

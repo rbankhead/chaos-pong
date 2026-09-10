@@ -6,7 +6,7 @@ const MAX_CHAOS_INTERVAL := 60.0
 
 const CHAOS_EFFECT_KEYS := [
 	"double_speed", "split", "swap", "third_fourth",
-	"projectiles", "double_points", "shrink_paddles", "obstructions",
+	"projectiles", "double_points", "shrink_paddles", "obstructions", "spin",
 ]
 
 var two_player := false
@@ -20,4 +20,5 @@ var enabled_chaos_effects := {
 	"double_points": true,
 	"shrink_paddles": true,
 	"obstructions": true,
+	"spin": true,
 }

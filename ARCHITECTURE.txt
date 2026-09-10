@@ -66,6 +66,12 @@ them.
     ball's color by priority: gold if `is_accent` (double points is
     active), else violet if `is_split_clone`, else the normal
     off-white - both flags inherited by clones spawned via split.
+    `spin` (radians/sec) continuously rotates `velocity` each frame
+    via Vector2.rotated() - speed-preserving curve, not a simulated
+    force. `visual_spin_angle` accumulates at the same rate and drives
+    a rotating indicator bar drawn across the ball whenever spin != 0
+    (queue_redraw() called every frame while spinning, unlike the
+    one-shot redraws the other flags use). Also inherited by clones.
 
   HorizontalPaddle (scripts/horizontal_paddle.gd)
     The chaos-only top/bottom paddles. Same shape of AI logic as
@@ -120,9 +126,9 @@ design; rules connecting entities live here, not on the entities.
     player-adjustable 10-60s in Options), then every chaos_interval
     again. Each tick picks a random effect from chaos_pool and removes
     it - every effect fires exactly once, ever. Once applied, each
-    effect stays permanent for the rest of the match, with one
-    exception: double_points (see below), which is consumed by the
-    next score instead. Once the pool is empty, nothing further
+    effect stays permanent for the rest of the match, with two
+    exceptions: double_points and spin (see below), both consumed by
+    the next score instead. Once the pool is empty, nothing further
     happens for the rest of the match.
 
   Chaos effects (_apply_* methods), in the pool:
@@ -157,6 +163,11 @@ design; rules connecting entities live here, not on the entities.
                      match - the only chaos effect that keeps doing
                      something after it fires, rather than being a
                      single permanent state change
+    spin           - sets a random-signed SPIN_AMOUNT (Ball.spin) on
+                     every current ball, inherited by split clones;
+                     consumed by the next score (spin_active goes back
+                     to false, every ball's spin reset to 0) - the
+                     other non-permanent effect alongside double_points
 
   Debug-only UI:
     A countdown label ("Next chaos in: Xs") visible only when

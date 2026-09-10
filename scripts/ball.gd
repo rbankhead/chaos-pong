@@ -12,6 +12,8 @@ var screen_size := Vector2(800, 600)
 var speed_scale := 1.0
 var is_split_clone := false
 var is_accent := false
+var spin := 0.0 # radians/sec; velocity rotates continuously while nonzero
+var visual_spin_angle := 0.0 # drives the spin-indicator bar, accumulates at the spin rate
 
 
 func _ready() -> void:
@@ -29,6 +31,9 @@ func current_color() -> Color:
 
 func _draw() -> void:
 	draw_circle(Vector2.ZERO, RADIUS, current_color())
+	if spin != 0.0:
+		var bar_dir := Vector2(RADIUS, 0.0).rotated(visual_spin_angle)
+		draw_line(-bar_dir, bar_dir, Color("#1a1c22"), 3.0)
 
 
 func reset(direction: int) -> void:
@@ -38,6 +43,10 @@ func reset(direction: int) -> void:
 
 
 func _process(delta: float) -> void:
+	if spin != 0.0:
+		velocity = velocity.rotated(spin * delta)
+		visual_spin_angle += spin * delta
+		queue_redraw()
 	position += velocity * delta
 
 	if position.y - RADIUS <= 0.0 or position.y + RADIUS >= screen_size.y:

@@ -64,3 +64,33 @@ func test_accent_color_is_gold_and_takes_priority_over_split_clone() -> void:
 	ball.is_split_clone = true
 	ball.is_accent = true
 	assert_eq(ball.current_color(), Color("#e8b64d"))
+
+
+func test_spin_curves_velocity_while_preserving_speed() -> void:
+	var ball = BallScene.instantiate()
+	add_child_autofree(ball)
+	ball.velocity = Vector2(500.0, 0.0)
+	ball.spin = 1.0 # 1 radian/sec
+	var speed_before: float = ball.velocity.length()
+	ball._process(0.5) # half a second of curve
+	# Godot's rotated() is Y-down, so a positive angle reads as negative on .angle().
+	assert_almost_eq(ball.velocity.angle(), -0.5, 0.01) # rotated by spin * delta
+	assert_almost_eq(ball.velocity.length(), speed_before, 0.5) # speed preserved
+	assert_almost_eq(ball.visual_spin_angle, 0.5, 0.01) # indicator bar tracks the same rate
+
+
+func test_no_spin_indicator_bar_when_spin_is_zero() -> void:
+	var ball = BallScene.instantiate()
+	add_child_autofree(ball)
+	ball.spin = 0.0
+	ball._process(1.0)
+	assert_eq(ball.visual_spin_angle, 0.0)
+
+
+func test_zero_spin_does_not_alter_velocity_direction() -> void:
+	var ball = BallScene.instantiate()
+	add_child_autofree(ball)
+	ball.velocity = Vector2(500.0, 0.0)
+	ball.spin = 0.0
+	ball._process(0.5)
+	assert_almost_eq(ball.velocity.angle(), 0.0, 0.001)

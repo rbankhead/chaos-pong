@@ -1,6 +1,7 @@
 extends Node2D
 
 const OBSTACLE_SPAWN_INTERVAL := 3.0
+const SPIN_AMOUNT := 1.2 # radians/sec of curve applied to the ball
 
 @onready var left_paddle: Paddle = $LeftPaddle
 @onready var right_paddle: Paddle = $RightPaddle
@@ -14,6 +15,7 @@ var projectiles: Array[Projectile] = []
 var obstacles: Array[Obstacle] = []
 var third_fourth_active := false
 var double_points_active := false
+var spin_active := false
 var obstructions_active := false
 var obstacle_spawn_timer := 0.0
 
@@ -102,6 +104,11 @@ func _on_scored(scorer: int, ball: Ball) -> void:
 			b.is_accent = false
 			b.queue_redraw()
 
+	if spin_active:
+		spin_active = false
+		for b in balls:
+			b.spin = 0.0
+
 	if ball.is_split_clone:
 		balls.erase(ball)
 		ball.queue_free()
@@ -138,6 +145,8 @@ func _trigger_random_chaos() -> void:
 			_apply_shrink_paddles()
 		"obstructions":
 			_apply_obstructions()
+		"spin":
+			_apply_spin()
 
 
 func _apply_double_speed() -> void:
@@ -155,6 +164,7 @@ func _apply_split() -> void:
 			clone.speed_scale = ball.speed_scale
 			clone.is_split_clone = true
 			clone.is_accent = ball.is_accent
+			clone.spin = ball.spin
 			clone.position = ball.position
 			var angle := (i + 1) * (PI / 2.0)
 			clone.velocity = ball.velocity.rotated(angle)
@@ -222,6 +232,12 @@ func _apply_shrink_paddles() -> void:
 
 func _apply_obstructions() -> void:
 	obstructions_active = true
+
+
+func _apply_spin() -> void:
+	spin_active = true
+	for ball in balls:
+		ball.spin = SPIN_AMOUNT * (1.0 if randf() < 0.5 else -1.0)
 
 
 func _spawn_obstacle() -> void:

@@ -21,7 +21,7 @@ func test_disabled_effect_is_excluded_from_chaos_pool() -> void:
 	GameState.enabled_chaos_effects["split"] = false
 	var game = GameScene.instantiate()
 	add_child_autofree(game)
-	assert_eq(game.chaos_pool.size(), 7)
+	assert_eq(game.chaos_pool.size(), 8)
 	assert_false(game.chaos_pool.has("split"))
 
 
@@ -102,10 +102,10 @@ func test_top_horizontal_paddle_clears_score_labels() -> void:
 	assert_lt(paddle_bottom_edge, score_label_top)
 
 
-func test_all_eight_chaos_effects_trigger_exactly_once() -> void:
+func test_all_nine_chaos_effects_trigger_exactly_once() -> void:
 	var game = GameScene.instantiate()
 	add_child_autofree(game)
-	for i in range(8):
+	for i in range(9):
 		game._trigger_random_chaos()
 	assert_eq(game.chaos_pool.size(), 0)
 	assert_true(game.third_fourth_active)
@@ -117,6 +117,7 @@ func test_all_eight_chaos_effects_trigger_exactly_once() -> void:
 	assert_eq(game.left_paddle.height_scale, 0.5)
 	assert_eq(game.right_paddle.height_scale, 0.5)
 	assert_true(game.obstructions_active)
+	assert_true(game.spin_active)
 
 
 func test_apply_double_points_marks_balls_accent() -> void:
@@ -173,6 +174,42 @@ func test_double_points_reverts_all_balls_in_play() -> void:
 	game._on_scored(1, game.balls[0])
 	for ball in game.balls:
 		assert_false(ball.is_accent)
+
+
+func test_apply_spin_sets_nonzero_spin_on_all_balls() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._apply_spin()
+	assert_true(game.spin_active)
+	assert_ne(game.balls[0].spin, 0.0)
+
+
+func test_spin_cannot_reactivate_after_pool_exhausted() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game.chaos_pool = ["spin"]
+	game._trigger_random_chaos()
+	assert_true(game.spin_active)
+	assert_false(game.chaos_pool.has("spin"))
+
+	game._on_scored(1, game.balls[0])
+	assert_false(game.spin_active)
+	assert_eq(game.balls[0].spin, 0.0)
+	assert_true(game.chaos_pool.is_empty())
+
+	game._on_scored(1, game.balls[0])
+	assert_false(game.spin_active)
+	assert_eq(game.balls[0].spin, 0.0)
+
+
+func test_split_clone_inherits_spin() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._apply_spin()
+	var original_spin: float = game.balls[0].spin
+	game._apply_split()
+	for ball in game.balls:
+		assert_eq(ball.spin, original_spin)
 
 
 func test_split_clone_inherits_accent_status() -> void:
