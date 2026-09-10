@@ -70,10 +70,10 @@ them.
   HorizontalPaddle (scripts/horizontal_paddle.gd)
     The chaos-only top/bottom paddles. Same shape of AI logic as
     Paddle, but horizontal movement, always AI, no human input, no
-    shooting, no marker. The bottom one sits WALL_MARGIN off the
-    bottom wall; the top one uses a separate, larger TOP_CLEARANCE
-    instead, since the plain wall margin used to put it directly
-    behind the score labels in game.tscn.
+    shooting, no marker. Both sit the same WALL_MARGIN off their
+    wall, symmetric top/bottom - it's the score labels in game.tscn
+    that were moved down (to y=110-190) to clear the top paddle's
+    travel band, not the other way around.
 
   Projectile (scripts/projectile.gd)
     Straight-line movement, self-destructs off-screen. Only ever

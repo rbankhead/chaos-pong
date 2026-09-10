@@ -97,8 +97,9 @@ func test_top_horizontal_paddle_clears_score_labels() -> void:
 	add_child_autofree(game)
 	game._apply_third_fourth()
 	var top = game.horizontal_paddles.filter(func(p): return p.is_top)[0]
-	var score_label_bottom := 120.0 # UI/LeftScore + UI/RightScore offset_bottom in game.tscn
-	assert_gt(top.get_rect().position.y, score_label_bottom)
+	var score_label_top := 110.0 # UI/LeftScore + UI/RightScore offset_top in game.tscn
+	var paddle_bottom_edge: float = top.get_rect().position.y + top.get_rect().size.y
+	assert_lt(paddle_bottom_edge, score_label_top)
 
 
 func test_all_eight_chaos_effects_trigger_exactly_once() -> void:
@@ -124,6 +125,23 @@ func test_apply_double_points_marks_balls_accent() -> void:
 	game._apply_double_points()
 	assert_true(game.double_points_active)
 	assert_true(game.balls[0].is_accent)
+
+
+func test_double_points_cannot_reactivate_after_pool_exhausted() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game.chaos_pool = ["double_points"] # force it to be the one that fires
+	game._trigger_random_chaos()
+	assert_true(game.double_points_active)
+	assert_false(game.chaos_pool.has("double_points")) # removed by the real trigger path
+
+	game._on_scored(1, game.balls[0])
+	assert_false(game.double_points_active)
+	assert_true(game.chaos_pool.is_empty()) # nothing left that could ever re-fire it
+
+	game._on_scored(1, game.balls[0])
+	assert_false(game.double_points_active)
+	assert_false(game.balls[0].is_accent)
 
 
 func test_double_points_awards_two_points_per_score() -> void:
