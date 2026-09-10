@@ -42,3 +42,25 @@ func test_bounce_off_horizontal_paddle_mirrors_vertical_bounce() -> void:
 	ball.bounce_off_horizontal_paddle(paddle_rect, true)
 	assert_almost_eq(ball.velocity.y, 540.0, 1.0)
 	assert_eq(ball.velocity.x, 0.0)
+
+
+func test_normal_ball_color() -> void:
+	var ball = BallScene.instantiate()
+	add_child_autofree(ball)
+	assert_eq(ball.current_color(), Color("#e8e8ec"))
+
+
+func test_split_clone_color_differs_from_normal() -> void:
+	var ball = BallScene.instantiate()
+	add_child_autofree(ball)
+	ball.is_split_clone = true
+	assert_eq(ball.current_color(), Color("#a374e0"))
+	assert_ne(ball.current_color(), Color("#e8e8ec"))
+
+
+func test_accent_color_is_gold_and_takes_priority_over_split_clone() -> void:
+	var ball = BallScene.instantiate()
+	add_child_autofree(ball)
+	ball.is_split_clone = true
+	ball.is_accent = true
+	assert_eq(ball.current_color(), Color("#e8b64d"))

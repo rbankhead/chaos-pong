@@ -45,7 +45,10 @@ them.
     `scored(scorer)` when it exits past the left/right edge. Has a
     persistent `speed_scale` (for the permanent speed-doubling effect)
     and an `is_split_clone` flag (clones from the split effect vanish
-    on scoring instead of resetting).
+    on scoring instead of resetting). `current_color()` picks the
+    ball's color by priority: gold if `is_accent` (double points is
+    active), else violet if `is_split_clone`, else the normal
+    off-white - both flags inherited by clones spawned via split.
 
   HorizontalPaddle (scripts/horizontal_paddle.gd)
     The chaos-only top/bottom paddles. Same shape of AI logic as
@@ -112,7 +115,7 @@ design; rules connecting entities live here, not on the entities.
                      Projectile per shot (paddle-side cooldown caps
                      this at 1/sec)
     double_points  - turns every current/future ball gold
-                     (Ball.is_gold, inherited by split clones) and
+                     (Ball.is_accent, inherited by split clones) and
                      doubles every score awarded from then on
     shrink_paddles - halves both Paddles' height, permanently, via
                      Paddle.height_scale (a multiplier on the HEIGHT

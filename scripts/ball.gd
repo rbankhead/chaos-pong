@@ -19,9 +19,16 @@ func _ready() -> void:
 	reset(1 if randf() < 0.5 else -1)
 
 
+func current_color() -> Color:
+	if is_accent:
+		return Color("#e8b64d") # gold - double points active
+	if is_split_clone:
+		return Color("#a374e0") # violet - split clone
+	return Color("#e8e8ec") # normal
+
+
 func _draw() -> void:
-	var ball_color := Color("#4d9fff") if is_accent else Color("#e8e8ec")
-	draw_circle(Vector2.ZERO, RADIUS, ball_color)
+	draw_circle(Vector2.ZERO, RADIUS, current_color())
 
 
 func reset(direction: int) -> void:
