@@ -70,7 +70,10 @@ them.
   HorizontalPaddle (scripts/horizontal_paddle.gd)
     The chaos-only top/bottom paddles. Same shape of AI logic as
     Paddle, but horizontal movement, always AI, no human input, no
-    shooting, no marker.
+    shooting, no marker. The bottom one sits WALL_MARGIN off the
+    bottom wall; the top one uses a separate, larger TOP_CLEARANCE
+    instead, since the plain wall margin used to put it directly
+    behind the score labels in game.tscn.
 
   Projectile (scripts/projectile.gd)
     Straight-line movement, self-destructs off-screen. Only ever
@@ -116,9 +119,11 @@ design; rules connecting entities live here, not on the entities.
     First trigger at chaos_interval (from GameState, default 30s,
     player-adjustable 10-60s in Options), then every chaos_interval
     again. Each tick picks a random effect from chaos_pool and removes
-    it - every effect fires exactly once, ever, and stays permanent
-    once applied (no reverting, no repeats, no compounding). Once the
-    pool is empty, nothing further happens for the rest of the match.
+    it - every effect fires exactly once, ever. Once applied, each
+    effect stays permanent for the rest of the match, with one
+    exception: double_points (see below), which is consumed by the
+    next score instead. Once the pool is empty, nothing further
+    happens for the rest of the match.
 
   Chaos effects (_apply_* methods), in the pool:
     double_speed   - multiplies every current/future ball's speed by
@@ -136,9 +141,13 @@ design; rules connecting entities live here, not on the entities.
                      shoot_requested signal to Game, which spawns a
                      Projectile per shot (paddle-side cooldown caps
                      this at 1/sec)
-    double_points  - turns every current/future ball gold
-                     (Ball.is_accent, inherited by split clones) and
-                     doubles every score awarded from then on
+    double_points  - turns every current ball gold (Ball.is_accent,
+                     inherited by split clones) and doubles the value
+                     of the NEXT score only - that score consumes the
+                     bonus: double_points_active goes back to false
+                     and every ball in play reverts to normal color.
+                     The only chaos effect that isn't permanent once
+                     applied.
     shrink_paddles - halves both Paddles' height, permanently, via
                      Paddle.height_scale (a multiplier on the HEIGHT
                      const, not a change to the const itself)

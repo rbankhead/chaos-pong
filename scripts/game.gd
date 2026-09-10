@@ -96,6 +96,12 @@ func _on_scored(scorer: int, ball: Ball) -> void:
 	var scoring_paddle: Paddle = left_paddle if scorer == 1 else right_paddle
 	scores[scoring_paddle.player] += 2 if double_points_active else 1
 
+	if double_points_active:
+		double_points_active = false
+		for b in balls:
+			b.is_accent = false
+			b.queue_redraw()
+
 	if ball.is_split_clone:
 		balls.erase(ball)
 		ball.queue_free()

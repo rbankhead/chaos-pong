@@ -92,6 +92,15 @@ func test_apply_third_fourth_spawns_two_horizontal_paddles() -> void:
 	assert_true(game.third_fourth_active)
 
 
+func test_top_horizontal_paddle_clears_score_labels() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._apply_third_fourth()
+	var top = game.horizontal_paddles.filter(func(p): return p.is_top)[0]
+	var score_label_bottom := 120.0 # UI/LeftScore + UI/RightScore offset_bottom in game.tscn
+	assert_gt(top.get_rect().position.y, score_label_bottom)
+
+
 func test_all_eight_chaos_effects_trigger_exactly_once() -> void:
 	var game = GameScene.instantiate()
 	add_child_autofree(game)
@@ -123,6 +132,29 @@ func test_double_points_awards_two_points_per_score() -> void:
 	game._apply_double_points()
 	game._on_scored(1, game.balls[0])
 	assert_eq(game.scores[1], 2)
+
+
+func test_double_points_is_consumed_after_one_score() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._apply_double_points()
+	game._on_scored(1, game.balls[0])
+	assert_false(game.double_points_active)
+	assert_false(game.balls[0].is_accent)
+
+	# The bonus is spent - the next score is worth only 1.
+	game._on_scored(1, game.balls[0])
+	assert_eq(game.scores[1], 3) # 2 from the first score, 1 from the second
+
+
+func test_double_points_reverts_all_balls_in_play() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._apply_double_points()
+	game._apply_split()
+	game._on_scored(1, game.balls[0])
+	for ball in game.balls:
+		assert_false(ball.is_accent)
 
 
 func test_split_clone_inherits_accent_status() -> void:
