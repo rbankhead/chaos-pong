@@ -41,12 +41,25 @@ func test_split_clone_disappears_on_score_but_original_resets() -> void:
 	var clone = game.balls[1]
 	game._on_scored(1, clone)
 	assert_eq(game.balls.size(), 3)
-	assert_eq(game.left_score, 1)
+	assert_eq(game.scores[1], 1)
 
 	var original = game.balls[0]
 	game._on_scored(2, original)
 	assert_eq(game.balls.size(), 3) # original stays in play, just resets
-	assert_eq(game.right_score, 1)
+	assert_eq(game.scores[2], 1)
+
+
+func test_score_follows_player_through_swap() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._apply_swap()
+	assert_eq(game.left_paddle.player, 2)
+	assert_eq(game.right_paddle.player, 1)
+
+	# Right side scores (scorer 2), now credited to player 1 since they swapped onto the right paddle.
+	game._on_scored(2, game.balls[0])
+	assert_eq(game.scores[1], 1)
+	assert_eq(game.scores[2], 0)
 
 
 func test_apply_third_fourth_spawns_two_edge_paddles() -> void:

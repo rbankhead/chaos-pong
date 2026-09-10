@@ -12,8 +12,7 @@ var balls: Array[Ball] = []
 var edge_paddles: Array[EdgePaddle] = []
 var third_fourth_active := false
 
-var left_score := 0
-var right_score := 0
+var scores := {1: 0, 2: 0}
 
 var chaos_pool := ["double_speed", "split", "swap", "third_fourth"]
 var chaos_timer := 0.0
@@ -54,10 +53,8 @@ func _register_ball(ball: Ball) -> void:
 
 
 func _on_scored(scorer: int, ball: Ball) -> void:
-	if scorer == 1:
-		left_score += 1
-	else:
-		right_score += 1
+	var scoring_paddle: Paddle = left_paddle if scorer == 1 else right_paddle
+	scores[scoring_paddle.player] += 1
 
 	if ball.is_split_clone:
 		balls.erase(ball)
@@ -71,8 +68,8 @@ func _on_scored(scorer: int, ball: Ball) -> void:
 
 
 func _update_score_labels() -> void:
-	left_score_label.text = str(left_score)
-	right_score_label.text = str(right_score)
+	left_score_label.text = str(scores[left_paddle.player])
+	right_score_label.text = str(scores[right_paddle.player])
 
 
 func _trigger_random_chaos() -> void:
@@ -121,6 +118,7 @@ func _apply_swap() -> void:
 	right_paddle.ai_target = swap_ai_target
 	left_paddle.queue_redraw()
 	right_paddle.queue_redraw()
+	_update_score_labels()
 
 
 func _apply_third_fourth() -> void:
