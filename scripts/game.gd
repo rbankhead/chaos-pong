@@ -145,7 +145,7 @@ func _apply_split() -> void:
 			add_child(clone)
 			clone.speed_scale = ball.speed_scale
 			clone.is_split_clone = true
-			clone.is_gold = ball.is_gold
+			clone.is_accent = ball.is_accent
 			clone.position = ball.position
 			var angle := (i + 1) * (PI / 2.0)
 			clone.velocity = ball.velocity.rotated(angle)
@@ -200,7 +200,7 @@ func _on_shoot_requested(paddle: Paddle, direction: float) -> void:
 func _apply_double_points() -> void:
 	double_points_active = true
 	for ball in balls:
-		ball.is_gold = true
+		ball.is_accent = true
 		ball.queue_redraw()
 
 

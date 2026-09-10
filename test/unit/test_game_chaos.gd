@@ -87,12 +87,12 @@ func test_all_eight_chaos_effects_trigger_exactly_once() -> void:
 	assert_true(game.obstructions_active)
 
 
-func test_apply_double_points_marks_balls_gold() -> void:
+func test_apply_double_points_marks_balls_accent() -> void:
 	var game = GameScene.instantiate()
 	add_child_autofree(game)
 	game._apply_double_points()
 	assert_true(game.double_points_active)
-	assert_true(game.balls[0].is_gold)
+	assert_true(game.balls[0].is_accent)
 
 
 func test_double_points_awards_two_points_per_score() -> void:
@@ -103,13 +103,13 @@ func test_double_points_awards_two_points_per_score() -> void:
 	assert_eq(game.scores[1], 2)
 
 
-func test_split_clone_inherits_gold_status() -> void:
+func test_split_clone_inherits_accent_status() -> void:
 	var game = GameScene.instantiate()
 	add_child_autofree(game)
 	game._apply_double_points()
 	game._apply_split()
 	for ball in game.balls:
-		assert_true(ball.is_gold)
+		assert_true(ball.is_accent)
 
 
 func test_apply_shrink_paddles_halves_both_paddles() -> void:

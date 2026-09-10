@@ -25,7 +25,7 @@ func _ready() -> void:
 	position.y = THICKNESS / 2.0 + WALL_MARGIN if is_top else viewport_size.y - THICKNESS / 2.0 - WALL_MARGIN
 	ai_known_target_x = position.x
 
-	body_style.bg_color = Color(0.82, 0.82, 0.84, 1.0)
+	body_style.bg_color = Color("#e8e8ec")
 	body_style.set_corner_radius_all(8)
 
 

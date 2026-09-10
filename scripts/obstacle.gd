@@ -12,7 +12,7 @@ func _ready() -> void:
 
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, RADIUS, Color(0.55, 0.4, 0.75, 1.0))
+	draw_circle(Vector2.ZERO, RADIUS, Color("#4d9fff"))
 
 
 func _process(delta: float) -> void:
