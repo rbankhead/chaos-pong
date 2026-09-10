@@ -1,7 +1,7 @@
 extends Node2D
 
 const CHAOS_FIRST_DELAY := 30.0
-const CHAOS_INTERVAL := 60.0
+const CHAOS_INTERVAL := 30.0
 
 @onready var left_paddle: Paddle = $LeftPaddle
 @onready var right_paddle: Paddle = $RightPaddle
