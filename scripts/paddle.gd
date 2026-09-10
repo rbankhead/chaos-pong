@@ -23,7 +23,12 @@ var ai_timer := 0.0
 var ai_known_target_y := 0.0
 var ai_ball_incoming := false
 var shoot_cooldown := 0.0
+var height_scale := 1.0
 var body_style := StyleBoxFlat.new()
+
+
+func current_height() -> float:
+	return HEIGHT * height_scale
 
 
 func _ready() -> void:
@@ -37,7 +42,8 @@ func _ready() -> void:
 
 
 func _draw() -> void:
-	draw_style_box(body_style, Rect2(-WIDTH / 2.0, -HEIGHT / 2.0, WIDTH, HEIGHT))
+	var h := current_height()
+	draw_style_box(body_style, Rect2(-WIDTH / 2.0, -h / 2.0, WIDTH, h))
 	var marker_color := Color(0.15, 0.15, 0.17, 1.0)
 	var r := WIDTH * 0.28
 	if player == 1:
@@ -75,7 +81,8 @@ func _process(delta: float) -> void:
 			dir += 1.0
 
 	position.y += dir * speed * delta
-	position.y = clamp(position.y, HEIGHT / 2.0, screen_height - HEIGHT / 2.0)
+	var h := current_height()
+	position.y = clamp(position.y, h / 2.0, screen_height - h / 2.0)
 
 	if can_shoot:
 		var wants_to_shoot := false
@@ -96,4 +103,5 @@ func _try_shoot(wants_to_shoot: bool, delta: float) -> void:
 
 
 func get_rect() -> Rect2:
-	return Rect2(position - Vector2(WIDTH, HEIGHT) / 2.0, Vector2(WIDTH, HEIGHT))
+	var h := current_height()
+	return Rect2(position - Vector2(WIDTH, h) / 2.0, Vector2(WIDTH, h))

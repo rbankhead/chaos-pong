@@ -2,6 +2,7 @@ extends Node2D
 
 const CHAOS_FIRST_DELAY := 30.0
 const CHAOS_INTERVAL := 30.0
+const OBSTACLE_SPAWN_INTERVAL := 3.0
 
 @onready var left_paddle: Paddle = $LeftPaddle
 @onready var right_paddle: Paddle = $RightPaddle
@@ -12,11 +13,15 @@ const CHAOS_INTERVAL := 30.0
 var balls: Array[Ball] = []
 var horizontal_paddles: Array[HorizontalPaddle] = []
 var projectiles: Array[Projectile] = []
+var obstacles: Array[Obstacle] = []
 var third_fourth_active := false
+var double_points_active := false
+var obstructions_active := false
+var obstacle_spawn_timer := 0.0
 
 var scores := {1: 0, 2: 0}
 
-var chaos_pool := ["double_speed", "split", "swap", "third_fourth", "projectiles"]
+var chaos_pool := ["double_speed", "split", "swap", "third_fourth", "projectiles", "double_points", "shrink_paddles", "obstructions"]
 var chaos_timer := 0.0
 var next_chaos_time := CHAOS_FIRST_DELAY
 
@@ -64,6 +69,20 @@ func _process(delta: float) -> void:
 				projectile.queue_free()
 				break
 
+	if obstructions_active:
+		obstacle_spawn_timer += delta
+		if obstacle_spawn_timer >= OBSTACLE_SPAWN_INTERVAL:
+			obstacle_spawn_timer = 0.0
+			_spawn_obstacle()
+
+	obstacles = obstacles.filter(func(o): return is_instance_valid(o))
+	for obstacle in obstacles:
+		for ball in balls:
+			if obstacle.get_rect().intersects(ball.get_rect()):
+				var to_ball := ball.position - obstacle.position
+				if ball.velocity.dot(to_ball) < 0.0:
+					obstacle.bounce_ball(ball)
+
 
 func _register_ball(ball: Ball) -> void:
 	balls.append(ball)
@@ -72,7 +91,7 @@ func _register_ball(ball: Ball) -> void:
 
 func _on_scored(scorer: int, ball: Ball) -> void:
 	var scoring_paddle: Paddle = left_paddle if scorer == 1 else right_paddle
-	scores[scoring_paddle.player] += 1
+	scores[scoring_paddle.player] += 2 if double_points_active else 1
 
 	if ball.is_split_clone:
 		balls.erase(ball)
@@ -104,6 +123,12 @@ func _trigger_random_chaos() -> void:
 			_apply_third_fourth()
 		"projectiles":
 			_apply_projectiles()
+		"double_points":
+			_apply_double_points()
+		"shrink_paddles":
+			_apply_shrink_paddles()
+		"obstructions":
+			_apply_obstructions()
 
 
 func _apply_double_speed() -> void:
@@ -120,6 +145,7 @@ func _apply_split() -> void:
 			add_child(clone)
 			clone.speed_scale = ball.speed_scale
 			clone.is_split_clone = true
+			clone.is_gold = ball.is_gold
 			clone.position = ball.position
 			var angle := (i + 1) * (PI / 2.0)
 			clone.velocity = ball.velocity.rotated(angle)
@@ -169,6 +195,32 @@ func _on_shoot_requested(paddle: Paddle, direction: float) -> void:
 	projectile.position = paddle.position
 	projectile.velocity = Vector2(direction, 0.0) * Projectile.SPEED
 	projectiles.append(projectile)
+
+
+func _apply_double_points() -> void:
+	double_points_active = true
+	for ball in balls:
+		ball.is_gold = true
+		ball.queue_redraw()
+
+
+func _apply_shrink_paddles() -> void:
+	left_paddle.height_scale = 0.5
+	right_paddle.height_scale = 0.5
+	left_paddle.queue_redraw()
+	right_paddle.queue_redraw()
+
+
+func _apply_obstructions() -> void:
+	obstructions_active = true
+
+
+func _spawn_obstacle() -> void:
+	var obstacle: Obstacle = preload("res://scenes/obstacle.tscn").instantiate()
+	add_child(obstacle)
+	var margin := 100.0
+	obstacle.position = Vector2(randf_range(margin, obstacle.screen_size.x - margin), -Obstacle.RADIUS)
+	obstacles.append(obstacle)
 
 
 func _unhandled_input(event: InputEvent) -> void:

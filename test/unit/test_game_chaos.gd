@@ -70,10 +70,10 @@ func test_apply_third_fourth_spawns_two_horizontal_paddles() -> void:
 	assert_true(game.third_fourth_active)
 
 
-func test_all_five_chaos_effects_trigger_exactly_once() -> void:
+func test_all_eight_chaos_effects_trigger_exactly_once() -> void:
 	var game = GameScene.instantiate()
 	add_child_autofree(game)
-	for i in range(5):
+	for i in range(8):
 		game._trigger_random_chaos()
 	assert_eq(game.chaos_pool.size(), 0)
 	assert_true(game.third_fourth_active)
@@ -81,6 +81,71 @@ func test_all_five_chaos_effects_trigger_exactly_once() -> void:
 	assert_eq(game.balls.size(), 4)
 	assert_true(game.left_paddle.can_shoot)
 	assert_true(game.right_paddle.can_shoot)
+	assert_true(game.double_points_active)
+	assert_eq(game.left_paddle.height_scale, 0.5)
+	assert_eq(game.right_paddle.height_scale, 0.5)
+	assert_true(game.obstructions_active)
+
+
+func test_apply_double_points_marks_balls_gold() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._apply_double_points()
+	assert_true(game.double_points_active)
+	assert_true(game.balls[0].is_gold)
+
+
+func test_double_points_awards_two_points_per_score() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._apply_double_points()
+	game._on_scored(1, game.balls[0])
+	assert_eq(game.scores[1], 2)
+
+
+func test_split_clone_inherits_gold_status() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._apply_double_points()
+	game._apply_split()
+	for ball in game.balls:
+		assert_true(ball.is_gold)
+
+
+func test_apply_shrink_paddles_halves_both_paddles() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._apply_shrink_paddles()
+	assert_eq(game.left_paddle.height_scale, 0.5)
+	assert_eq(game.right_paddle.height_scale, 0.5)
+	assert_eq(game.left_paddle.current_height(), Paddle.HEIGHT * 0.5)
+
+
+func test_apply_obstructions_sets_flag() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._apply_obstructions()
+	assert_true(game.obstructions_active)
+
+
+func test_spawn_obstacle_adds_to_obstacles_array() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game._spawn_obstacle()
+	assert_eq(game.obstacles.size(), 1)
+
+
+func test_obstacle_bounces_ball_and_is_not_consumed() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	var ball = game.balls[0]
+	ball.velocity = Vector2(0.0, 100.0)
+	game._spawn_obstacle()
+	var obstacle = game.obstacles[0]
+	obstacle.position = ball.position + Vector2(0, 1) # obstacle just below, ball moving toward it
+	game._process(0.0)
+	assert_eq(game.obstacles.size(), 1) # still alive, unlike a projectile
+	assert_ne(ball.velocity, Vector2(0.0, 100.0))
 
 
 func test_apply_projectiles_enables_shooting_on_both_paddles() -> void:

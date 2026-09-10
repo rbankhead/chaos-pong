@@ -11,6 +11,7 @@ var velocity := Vector2.ZERO
 var screen_size := Vector2(800, 600)
 var speed_scale := 1.0
 var is_split_clone := false
+var is_gold := false
 
 
 func _ready() -> void:
@@ -19,7 +20,8 @@ func _ready() -> void:
 
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, RADIUS, Color(0.82, 0.82, 0.84, 1.0))
+	var ball_color := Color(0.85, 0.7, 0.15, 1.0) if is_gold else Color(0.82, 0.82, 0.84, 1.0)
+	draw_circle(Vector2.ZERO, RADIUS, ball_color)
 
 
 func reset(direction: int) -> void:
