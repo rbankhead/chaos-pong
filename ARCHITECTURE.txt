@@ -1,0 +1,118 @@
+Chaos Pong - Architecture
+=========================
+
+Keep this file updated whenever the structure below changes (new entity,
+new chaos effect, new top-level system). It should always reflect the
+current code, not the original design intent.
+
+Top-level layout
+----------------
+project.godot        Engine config: 2080x1200 viewport, GL Compatibility
+                      renderer, autoloads, enabled plugins.
+scenes/ + scripts/    One .gd per .tscn, paired by ext_resource. Scene
+                      files hold layout/wiring; scripts hold behavior.
+addons/               Third-party, not game code:
+                        mcp_bridge - lets an AI agent run/inspect the
+                          game from the terminal (editor + runtime TCP
+                          bridges).
+                        gut        - unit test framework.
+test/unit/            GUT tests, one file per script under test.
+.claude/settings.json Pre-commit hook: blocks `git commit` unless the
+                      GUT suite passes.
+
+Scene flow
+----------
+menu.tscn (main scene)
+  -> Single Player / Two Player: sets GameState.two_player (the only
+     autoload holding cross-scene state), loads game.tscn
+  -> Options: stub scene, not wired to anything yet
+
+Core entities
+-------------
+Each is a self-contained Node2D with a class_name. None of them know
+about each other - they only expose state and small helper methods
+(get_rect(), bounce_off_*()). Game.gd is the only thing that connects
+them.
+
+  Paddle (scripts/paddle.gd)
+    Vertical movement. Human input (W/S or Up/Down) or AI (reaction
+    delay + aim error, tracks a Ball via ai_target). Draws an O or X
+    marker keyed to `player`, not screen side. Can shoot a Projectile
+    if `can_shoot` is set (see chaos effects below).
+
+  Ball (scripts/ball.gd)
+    Moves each frame, bounces off top/bottom walls itself, emits
+    `scored(scorer)` when it exits past the left/right edge. Has a
+    persistent `speed_scale` (for the permanent speed-doubling effect)
+    and an `is_split_clone` flag (clones from the split effect vanish
+    on scoring instead of resetting).
+
+  HorizontalPaddle (scripts/horizontal_paddle.gd)
+    The chaos-only top/bottom paddles. Same shape of AI logic as
+    Paddle, but horizontal movement, always AI, no human input, no
+    shooting, no marker.
+
+  Projectile (scripts/projectile.gd)
+    Straight-line movement, self-destructs off-screen. Only ever
+    collides with a Ball (checked in Game, not here).
+
+Game (scripts/game.gd) - the orchestrator
+------------------------------------------
+The only class with the full picture. Everything else is dumb by
+design; rules connecting entities live here, not on the entities.
+
+  State it owns:
+    balls: Array[Ball]                  - starts at 1, grows via split
+    horizontal_paddles: Array[HorizontalPaddle] - starts empty
+    projectiles: Array[Projectile]      - starts empty
+    scores: {1: int, 2: int}            - keyed by PLAYER, not side,
+                                           so a paddle swap doesn't
+                                           transfer scoring credit
+    chaos_pool: Array[String]           - remaining un-fired effects
+
+  Collision handling (_process, every frame):
+    All manual Rect2.intersects() checks - no Godot physics engine
+    involved, this never needed real physics.
+      paddle <-> ball
+      horizontal_paddle <-> ball (only once third_fourth has fired)
+      projectile <-> ball (projectiles never check paddles)
+
+  Chaos scheduler:
+    First trigger at CHAOS_FIRST_DELAY (30s), then every CHAOS_INTERVAL
+    (30s). Each tick picks a random effect from chaos_pool and removes
+    it - every effect fires exactly once, ever, and stays permanent
+    once applied (no reverting, no repeats, no compounding). Once the
+    pool is empty, nothing further happens for the rest of the match.
+
+  Chaos effects (_apply_* methods), in the pool:
+    double_speed   - multiplies every current/future ball's speed by
+                     2x, permanently (via Ball.speed_scale)
+    split          - each current ball becomes 4 (3 clones fanned out
+                     at 90 degree angles); clones despawn for good when
+                     they score, so ball count only trends back to 1
+    swap           - swaps player/is_ai/ai_target between the two
+                     Paddles; control assignment moves, screen position
+                     does not
+    third_fourth   - spawns two HorizontalPaddles (top/bottom), sets
+                     third_fourth_active so their collisions start
+                     being checked
+    projectiles    - sets can_shoot on both Paddles; connects their
+                     shoot_requested signal to Game, which spawns a
+                     Projectile per shot (paddle-side cooldown caps
+                     this at 1/sec)
+
+  Debug-only UI:
+    A countdown label ("Next chaos in: Xs") visible only when
+    OS.is_debug_build() is true.
+
+Known gaps (deliberate, not oversights - revisit if they start to bite)
+-------------------------------------------------------------------
+  - HorizontalPaddle duplicates Paddle's AI tracking logic (reaction
+    delay + aim error) rather than sharing it, since the two also
+    differ in movement axis, human-input support, and shooting.
+  - HorizontalPaddle only tracks balls[0], not multi-ball-aware if
+    split has already happened.
+  - No on-screen announcement when a chaos effect fires (only the
+    debug countdown shows anything).
+  - Long games plateau: once all 5 effects have fired (~2.5 min in),
+    nothing further escalates for the rest of the match.
