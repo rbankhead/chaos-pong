@@ -24,6 +24,8 @@ Scene flow
 ----------
 menu.tscn (main scene)
   -> Single Player / Two Player: sets GameState.two_player, loads game.tscn
+     (TEMPORARY: Two Player currently means AI vs AI, not two humans - see
+     the comment in Game._ready() to revert)
   -> Options: builds one row per setting at runtime (options.gd), reading
      from and writing straight to GameState - a chaos-timer SpinBox and
      a CheckButton per chaos effect (on by default). See GameState below.

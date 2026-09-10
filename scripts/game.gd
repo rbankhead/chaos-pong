@@ -28,9 +28,14 @@ var next_chaos_time := 30.0
 
 
 func _ready() -> void:
-	right_paddle.is_ai = not GameState.two_player
-	if right_paddle.is_ai:
-		right_paddle.ai_target = $Ball
+	# TEMPORARY: Two Player is AI vs AI for now, for visual monitoring without
+	# needing two hands on the keyboard. Revert to `left_paddle.is_ai = false`
+	# unconditionally (human) to restore real two-player.
+	right_paddle.is_ai = true
+	right_paddle.ai_target = $Ball
+	left_paddle.is_ai = GameState.two_player
+	if left_paddle.is_ai:
+		left_paddle.ai_target = $Ball
 	_register_ball($Ball)
 	_update_score_labels()
 	debug_timer_label.visible = OS.is_debug_build()
