@@ -17,6 +17,7 @@ var screen_width := 800.0
 var is_left_side := true
 var ai_timer := 0.0
 var ai_known_target_y := 0.0
+var body_style := StyleBoxFlat.new()
 
 
 func _ready() -> void:
@@ -25,9 +26,12 @@ func _ready() -> void:
 	screen_width = viewport_size.x
 	is_left_side = position.x < screen_width / 2.0
 
+	body_style.bg_color = Color(0.82, 0.82, 0.84, 1.0)
+	body_style.set_corner_radius_all(8)
+
 
 func _draw() -> void:
-	draw_rect(Rect2(-WIDTH / 2.0, -HEIGHT / 2.0, WIDTH, HEIGHT), Color(0.82, 0.82, 0.84, 1.0))
+	draw_style_box(body_style, Rect2(-WIDTH / 2.0, -HEIGHT / 2.0, WIDTH, HEIGHT))
 	var marker_color := Color(0.15, 0.15, 0.17, 1.0)
 	var r := WIDTH * 0.28
 	if player == 1:
