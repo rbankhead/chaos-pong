@@ -119,6 +119,8 @@ func _apply_swap() -> void:
 	right_paddle.player = swap_player
 	right_paddle.is_ai = swap_is_ai
 	right_paddle.ai_target = swap_ai_target
+	left_paddle.queue_redraw()
+	right_paddle.queue_redraw()
 
 
 func _apply_third_fourth() -> void:

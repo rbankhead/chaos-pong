@@ -28,6 +28,13 @@ func _ready() -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(-WIDTH / 2.0, -HEIGHT / 2.0, WIDTH, HEIGHT), Color(0.82, 0.82, 0.84, 1.0))
+	var marker_color := Color(0.15, 0.15, 0.17, 1.0)
+	var r := WIDTH * 0.28
+	if player == 1:
+		draw_arc(Vector2.ZERO, r, 0.0, TAU, 24, marker_color, 3.0)
+	else:
+		draw_line(Vector2(-r, -r), Vector2(r, r), marker_color, 3.0)
+		draw_line(Vector2(-r, r), Vector2(r, -r), marker_color, 3.0)
 
 
 func _process(delta: float) -> void:
