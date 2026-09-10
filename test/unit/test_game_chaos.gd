@@ -102,6 +102,27 @@ func test_top_horizontal_paddle_clears_score_labels() -> void:
 	assert_lt(paddle_bottom_edge, score_label_top)
 
 
+func test_horizontal_paddles_mirror_vertical_paddle_position() -> void:
+	var game = GameScene.instantiate()
+	add_child_autofree(game)
+	game.left_paddle.screen_height = 1200.0
+	game.right_paddle.screen_height = 1200.0
+	game._apply_third_fourth()
+
+	var top = game.horizontal_paddles.filter(func(p): return p.is_top)[0]
+	var bottom = game.horizontal_paddles.filter(func(p): return not p.is_top)[0]
+	top.screen_width = 2080.0
+	bottom.screen_width = 2080.0
+
+	game.left_paddle.position.y = game.left_paddle.screen_height / 2.0 # midpoint -> ratio 0.5
+	game.right_paddle.position.y = game.right_paddle.current_height() / 2.0 # min -> ratio 0.0
+
+	game._process(0.0)
+
+	assert_almost_eq(top.position.x, 1040.0, 1.0) # left paddle at midpoint -> top centered
+	assert_almost_eq(bottom.position.x, HorizontalPaddle.LENGTH / 2.0, 1.0) # right paddle at min -> bottom at its own min
+
+
 func test_all_nine_chaos_effects_trigger_exactly_once() -> void:
 	var game = GameScene.instantiate()
 	add_child_autofree(game)

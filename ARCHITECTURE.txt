@@ -73,18 +73,25 @@ them.
     (queue_redraw() called every frame while spinning, unlike the
     one-shot redraws the other flags use). Also inherited by clones.
     `decay_spin()` multiplies spin by SPIN_DECAY (0.7) and snaps it to
-    exactly 0 below SPIN_STOP_THRESHOLD; called on every bounce off a
-    paddle, wall, or Obstacle (not on a Projectile hit, which is an
-    added force rather than a surface reflection) - spin winds down
+    exactly 0 below SPIN_STOP_THRESHOLD; called on every paddle, wall,
+    Obstacle, or Projectile hit (hit_by_projectile() included, once
+    that was made to behave like a paddle bounce) - spin winds down
     over a rally instead of curving at a constant rate until scored.
 
   HorizontalPaddle (scripts/horizontal_paddle.gd)
-    The chaos-only top/bottom paddles. Same shape of AI logic as
-    Paddle, but horizontal movement, always AI, no human input, no
-    shooting, no marker. Both sit the same WALL_MARGIN off their
-    wall, symmetric top/bottom - it's the score labels in game.tscn
-    that were moved down (to y=110-190) to clear the top paddle's
-    travel band, not the other way around.
+    The chaos-only top/bottom paddles. No AI, no human input of its
+    own, no shooting, no marker - its horizontal position is driven
+    entirely by Game each frame via `set_position_from_ratio()`,
+    which maps a 0..1 ratio onto its own left/right travel range.
+    Both sit the same WALL_MARGIN off their wall, symmetric top/bottom
+    - it's the score labels in game.tscn that were moved down (to
+    y=110-190) to clear the top paddle's travel band, not the other
+    way around. The ratio itself comes from Paddle.vertical_ratio()
+    (0 at the top of that paddle's own travel range, 1 at the bottom,
+    already accounting for height_scale): the top HorizontalPaddle
+    mirrors left_paddle, the bottom mirrors right_paddle. This follows
+    the physical paddle (screen side), not player identity through a
+    swap - a deliberate simplification, unlike scores/markers.
 
   Projectile (scripts/projectile.gd)
     Straight-line movement, self-destructs off-screen. Only ever
@@ -191,11 +198,6 @@ design; rules connecting entities live here, not on the entities.
 
 Known gaps (deliberate, not oversights - revisit if they start to bite)
 -------------------------------------------------------------------
-  - HorizontalPaddle duplicates Paddle's AI tracking logic (reaction
-    delay + aim error) rather than sharing it, since the two also
-    differ in movement axis, human-input support, and shooting.
-  - HorizontalPaddle only tracks balls[0], not multi-ball-aware if
-    split has already happened.
   - No on-screen announcement when a chaos effect fires (only the
     debug countdown shows anything).
   - Long games plateau: once every enabled effect has fired (by

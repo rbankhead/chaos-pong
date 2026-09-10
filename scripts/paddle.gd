@@ -31,6 +31,15 @@ func current_height() -> float:
 	return HEIGHT * height_scale
 
 
+func vertical_ratio() -> float:
+	var h := current_height()
+	var min_y := h / 2.0
+	var max_y := screen_height - h / 2.0
+	if max_y <= min_y:
+		return 0.5
+	return (position.y - min_y) / (max_y - min_y)
+
+
 func _ready() -> void:
 	var viewport_size := get_viewport_rect().size
 	screen_height = viewport_size.y

@@ -51,3 +51,27 @@ func test_right_paddle_shoots_leftward() -> void:
 	paddle._try_shoot(true, 1.0)
 	var params: Array = get_signal_parameters(paddle, "shoot_requested")
 	assert_eq(params[1], -1.0)
+
+
+func test_vertical_ratio_at_min_position() -> void:
+	var paddle = PaddleScene.instantiate()
+	add_child_autofree(paddle)
+	paddle.screen_height = 1200.0
+	paddle.position.y = paddle.current_height() / 2.0
+	assert_almost_eq(paddle.vertical_ratio(), 0.0, 0.001)
+
+
+func test_vertical_ratio_at_max_position() -> void:
+	var paddle = PaddleScene.instantiate()
+	add_child_autofree(paddle)
+	paddle.screen_height = 1200.0
+	paddle.position.y = paddle.screen_height - paddle.current_height() / 2.0
+	assert_almost_eq(paddle.vertical_ratio(), 1.0, 0.001)
+
+
+func test_vertical_ratio_at_midpoint() -> void:
+	var paddle = PaddleScene.instantiate()
+	add_child_autofree(paddle)
+	paddle.screen_height = 1200.0
+	paddle.position.y = paddle.screen_height / 2.0
+	assert_almost_eq(paddle.vertical_ratio(), 0.5, 0.001)

@@ -65,6 +65,11 @@ func _process(delta: float) -> void:
 				elif not h_paddle.is_top and ball.velocity.y > 0.0 and ball.get_rect().intersects(h_paddle.get_rect()):
 					ball.bounce_off_horizontal_paddle(h_paddle.get_rect(), false)
 
+	if third_fourth_active:
+		for h_paddle in horizontal_paddles:
+			var source_paddle := left_paddle if h_paddle.is_top else right_paddle
+			h_paddle.set_position_from_ratio(source_paddle.vertical_ratio())
+
 	projectiles = projectiles.filter(func(p): return is_instance_valid(p))
 	for projectile in projectiles.duplicate():
 		for ball in balls:
@@ -191,13 +196,11 @@ func _apply_third_fourth() -> void:
 	var top: HorizontalPaddle = preload("res://scenes/horizontal_paddle.tscn").instantiate()
 	top.is_top = true
 	add_child(top)
-	top.ai_target = balls[0]
 	horizontal_paddles.append(top)
 
 	var bottom: HorizontalPaddle = preload("res://scenes/horizontal_paddle.tscn").instantiate()
 	bottom.is_top = false
 	add_child(bottom)
-	bottom.ai_target = balls[0]
 	horizontal_paddles.append(bottom)
 
 
