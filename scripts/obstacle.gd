@@ -3,6 +3,9 @@ class_name Obstacle
 
 const RADIUS := 24.0
 const FALL_SPEED := 250.0
+const COLOR := Color("#c9342e")
+const TRAIL_COUNT := 4
+const TRAIL_SPACING := 14.0 # px between trail circles, opposite the fall direction
 
 var screen_size := Vector2(800, 600)
 
@@ -12,7 +15,12 @@ func _ready() -> void:
 
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, RADIUS, Color("#4d9fff"))
+	for i in range(TRAIL_COUNT, 0, -1):
+		var t := float(i)
+		var trail_color := Color(COLOR.r, COLOR.g, COLOR.b, 0.5 / t)
+		var trail_radius := RADIUS * (1.0 - t * 0.15)
+		draw_circle(Vector2(0.0, -t * TRAIL_SPACING), trail_radius, trail_color)
+	draw_circle(Vector2.ZERO, RADIUS, COLOR)
 
 
 func _process(delta: float) -> void:

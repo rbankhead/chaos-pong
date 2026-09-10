@@ -7,7 +7,7 @@ const SPEED := 800.0
 
 const AI_REACTION_INTERVAL := 0.2 # seconds between AI "looks" at the ball
 const AI_AIM_ERROR := 40.0 # pixels of aim noise applied each time it looks
-const SHOOT_COOLDOWN_TIME := 1.0 # max one shot per second
+const SHOOT_COOLDOWN_TIME := 0.5 # max two shots per second
 
 signal shoot_requested(paddle: Paddle, direction: float)
 

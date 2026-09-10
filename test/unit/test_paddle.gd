@@ -3,7 +3,7 @@ extends GutTest
 var PaddleScene := preload("res://scenes/paddle.tscn")
 
 
-func test_try_shoot_respects_one_second_cooldown() -> void:
+func test_try_shoot_respects_half_second_cooldown() -> void:
 	var paddle = PaddleScene.instantiate()
 	add_child_autofree(paddle)
 	paddle.can_shoot = true
@@ -15,7 +15,7 @@ func test_try_shoot_respects_one_second_cooldown() -> void:
 	paddle._try_shoot(true, 0.016)
 	assert_signal_emit_count(paddle, "shoot_requested", 1) # still on cooldown
 
-	paddle._try_shoot(true, 1.0) # cooldown elapses
+	paddle._try_shoot(true, 0.5) # cooldown elapses
 	assert_signal_emit_count(paddle, "shoot_requested", 2)
 
 

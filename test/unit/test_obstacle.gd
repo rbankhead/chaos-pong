@@ -4,6 +4,11 @@ var ObstacleScene := preload("res://scenes/obstacle.tscn")
 var BallScene := preload("res://scenes/ball.tscn")
 
 
+func test_color_differs_from_both_projectile_colors() -> void:
+	assert_ne(Obstacle.COLOR, Color("#4d9fff")) # player 1's projectile
+	assert_ne(Obstacle.COLOR, Color("#ff6b5e")) # player 2's projectile
+
+
 func test_bounce_ball_reflects_velocity() -> void:
 	var obstacle = ObstacleScene.instantiate()
 	add_child_autofree(obstacle)
