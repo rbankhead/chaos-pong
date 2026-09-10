@@ -62,11 +62,11 @@ func test_score_follows_player_through_swap() -> void:
 	assert_eq(game.scores[2], 0)
 
 
-func test_apply_third_fourth_spawns_two_edge_paddles() -> void:
+func test_apply_third_fourth_spawns_two_horizontal_paddles() -> void:
 	var game = GameScene.instantiate()
 	add_child_autofree(game)
 	game._apply_third_fourth()
-	assert_eq(game.edge_paddles.size(), 2)
+	assert_eq(game.horizontal_paddles.size(), 2)
 	assert_true(game.third_fourth_active)
 
 
@@ -77,7 +77,7 @@ func test_all_five_chaos_effects_trigger_exactly_once() -> void:
 		game._trigger_random_chaos()
 	assert_eq(game.chaos_pool.size(), 0)
 	assert_true(game.third_fourth_active)
-	assert_eq(game.edge_paddles.size(), 2)
+	assert_eq(game.horizontal_paddles.size(), 2)
 	assert_eq(game.balls.size(), 4)
 	assert_true(game.left_paddle.can_shoot)
 	assert_true(game.right_paddle.can_shoot)

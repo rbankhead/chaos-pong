@@ -10,7 +10,7 @@ const CHAOS_INTERVAL := 30.0
 @onready var debug_timer_label: Label = $UI/DebugTimer
 
 var balls: Array[Ball] = []
-var edge_paddles: Array[EdgePaddle] = []
+var horizontal_paddles: Array[HorizontalPaddle] = []
 var projectiles: Array[Projectile] = []
 var third_fourth_active := false
 
@@ -49,11 +49,11 @@ func _process(delta: float) -> void:
 			ball.bounce_off_paddle(right_paddle.get_rect(), false)
 
 		if third_fourth_active:
-			for edge in edge_paddles:
-				if edge.is_top and ball.velocity.y < 0.0 and ball.get_rect().intersects(edge.get_rect()):
-					ball.bounce_off_horizontal_paddle(edge.get_rect(), true)
-				elif not edge.is_top and ball.velocity.y > 0.0 and ball.get_rect().intersects(edge.get_rect()):
-					ball.bounce_off_horizontal_paddle(edge.get_rect(), false)
+			for h_paddle in horizontal_paddles:
+				if h_paddle.is_top and ball.velocity.y < 0.0 and ball.get_rect().intersects(h_paddle.get_rect()):
+					ball.bounce_off_horizontal_paddle(h_paddle.get_rect(), true)
+				elif not h_paddle.is_top and ball.velocity.y > 0.0 and ball.get_rect().intersects(h_paddle.get_rect()):
+					ball.bounce_off_horizontal_paddle(h_paddle.get_rect(), false)
 
 	projectiles = projectiles.filter(func(p): return is_instance_valid(p))
 	for projectile in projectiles.duplicate():
@@ -143,17 +143,17 @@ func _apply_swap() -> void:
 
 func _apply_third_fourth() -> void:
 	third_fourth_active = true
-	var top: EdgePaddle = preload("res://scenes/edge_paddle.tscn").instantiate()
+	var top: HorizontalPaddle = preload("res://scenes/horizontal_paddle.tscn").instantiate()
 	top.is_top = true
 	add_child(top)
 	top.ai_target = balls[0]
-	edge_paddles.append(top)
+	horizontal_paddles.append(top)
 
-	var bottom: EdgePaddle = preload("res://scenes/edge_paddle.tscn").instantiate()
+	var bottom: HorizontalPaddle = preload("res://scenes/horizontal_paddle.tscn").instantiate()
 	bottom.is_top = false
 	add_child(bottom)
 	bottom.ai_target = balls[0]
-	edge_paddles.append(bottom)
+	horizontal_paddles.append(bottom)
 
 
 func _apply_projectiles() -> void:

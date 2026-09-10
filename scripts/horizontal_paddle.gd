@@ -1,5 +1,5 @@
 extends Node2D
-class_name EdgePaddle
+class_name HorizontalPaddle
 
 const LENGTH := 220.0
 const THICKNESS := 32.0
