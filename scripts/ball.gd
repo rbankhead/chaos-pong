@@ -10,6 +10,7 @@ signal scored(scorer: int) # 1 = left paddle scores, 2 = right paddle scores
 var velocity := Vector2.ZERO
 var screen_size := Vector2(800, 600)
 var speed_scale := 1.0
+var is_split_clone := false
 
 
 func _ready() -> void:

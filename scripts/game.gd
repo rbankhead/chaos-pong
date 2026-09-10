@@ -56,10 +56,17 @@ func _register_ball(ball: Ball) -> void:
 func _on_scored(scorer: int, ball: Ball) -> void:
 	if scorer == 1:
 		left_score += 1
-		ball.reset(1)
 	else:
 		right_score += 1
+
+	if ball.is_split_clone:
+		balls.erase(ball)
+		ball.queue_free()
+	elif scorer == 1:
+		ball.reset(1)
+	else:
 		ball.reset(-1)
+
 	_update_score_labels()
 
 
@@ -95,6 +102,7 @@ func _apply_split() -> void:
 			var clone: Ball = preload("res://scenes/ball.tscn").instantiate()
 			add_child(clone)
 			clone.speed_scale = ball.speed_scale
+			clone.is_split_clone = true
 			clone.position = ball.position
 			var angle := (i + 1) * (PI / 2.0)
 			clone.velocity = ball.velocity.rotated(angle)
