@@ -7,6 +7,7 @@ const CHAOS_INTERVAL := 30.0
 @onready var right_paddle: Paddle = $RightPaddle
 @onready var left_score_label: Label = $UI/LeftScore
 @onready var right_score_label: Label = $UI/RightScore
+@onready var debug_timer_label: Label = $UI/DebugTimer
 
 var balls: Array[Ball] = []
 var edge_paddles: Array[EdgePaddle] = []
@@ -26,6 +27,7 @@ func _ready() -> void:
 		right_paddle.ai_target = $Ball
 	_register_ball($Ball)
 	_update_score_labels()
+	debug_timer_label.visible = OS.is_debug_build()
 
 
 func _process(delta: float) -> void:
@@ -33,6 +35,12 @@ func _process(delta: float) -> void:
 	if chaos_timer >= next_chaos_time and not chaos_pool.is_empty():
 		next_chaos_time += CHAOS_INTERVAL
 		_trigger_random_chaos()
+
+	if OS.is_debug_build():
+		if chaos_pool.is_empty():
+			debug_timer_label.text = "Chaos: all fired (t=%.1fs)" % chaos_timer
+		else:
+			debug_timer_label.text = "Next chaos in: %.1fs" % max(next_chaos_time - chaos_timer, 0.0)
 
 	for ball in balls:
 		if ball.velocity.x < 0.0 and ball.get_rect().intersects(left_paddle.get_rect()):
